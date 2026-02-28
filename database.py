@@ -9,7 +9,7 @@ from config import DATABASE_URL, LOG_FILE
 
 # Настройка логирования
 logging.basicConfig(
-    level=LOG_LEVEL,
+    level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
         logging.FileHandler(LOG_FILE),
