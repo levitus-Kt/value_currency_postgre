@@ -128,3 +128,33 @@ class DatabaseManager:
             logger.error(f"Ошибка при вставке в responses: {e}")
             self.connection.rollback()
             return False
+        
+
+    def get_latest_rates(self, limit: int = 10):
+        """Получение последних курсов валют"""
+        try:
+            with self.connection.cursor(cursor_factory=RealDictCursor) as cursor:
+                cursor.execute('''
+                    SELECT 
+                        r.id, 
+                        r.request_time, 
+                        resp.currency_code, 
+                        resp.currency_name, 
+                        resp.rate
+                    FROM responses resp
+                    JOIN requests r ON resp.request_id = r.id
+                    ORDER BY r.request_time DESC, resp.id DESC
+                    LIMIT %s
+                ''', (limit))
+                
+                return cursor.fetchall()
+            
+        except Exception as e:
+            logger.error(f"Ошибка при чтении из БД: {e}")
+            return []
+    
+    def close(self):
+        """Закрытие соединения с БД"""
+        if self.connection:
+            self.connection.close()
+            logger.info("Соединение с БД закрыто")
