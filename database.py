@@ -5,7 +5,7 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 from datetime import datetime
 import logging
-from config import DATABASE_URL, LOG_FILE, LOG_LEVEL
+from config import DATABASE_URL, LOG_FILE
 
 # Настройка логирования
 logging.basicConfig(
@@ -75,5 +75,56 @@ class DatabaseManager:
             
         except Exception as e:
             logger.error(f"Ошибка при создании таблиц: {e}")
+            self.connection.rollback()
+            return False
+        
+
+    def insert_request(self, api_url: str, status: str) -> int | None:
+        """
+        Вставка записи в таблицу requests
+        Возвращает ID вставленной записи
+        """
+        try:
+            with self.connection.cursor() as cursor:
+                cursor.execute('''
+                    INSERT INTO requests (api_url, status, request_time)
+                    VALUES (%s, %s, %s)
+                    RETURNING id
+                ''', (api_url, status, datetime.now()))
+                
+                request_id = cursor.fetchone()[0]
+                self.connection.commit()
+                return request_id
+            
+        except Exception as e:
+            logger.error(f"Ошибка при вставке в requests: {e}")
+            self.connection.rollback()
+            return None
+
+    def insert_responses(self, request_id: int, currencies: list[dict]) -> bool:
+        """
+        Вставка курсов валют в таблицу responses
+        currencies - список словарей с данными о валютах
+        """
+        try:
+            with self.connection.cursor() as cursor:
+                for currency in currencies:
+                    cursor.execute('''
+                        INSERT INTO responses 
+                        (request_id, currency_code, currency_name, rate, nominal)
+                        VALUES (%s, %s, %s, %s, %s)
+                    ''', (
+                        request_id,
+                        currency['code'],
+                        currency['name'],
+                        currency['rate'],
+                        currency['nominal']
+                    ))
+                
+                self.connection.commit()
+                logger.info(f"Сохранено {len(currencies)} валют")
+                return True
+        except Exception as e:
+            logger.error(f"Ошибка при вставке в responses: {e}")
             self.connection.rollback()
             return False
