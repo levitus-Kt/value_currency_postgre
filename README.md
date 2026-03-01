@@ -36,7 +36,7 @@ exchange-rates-service/
 # Клонируем репозиторий
 git clone https://github.com/levitus-Kt/value_currency_postgre.git
 
-cd exchange-rates-service
+cd value_currency_postgre
 
 # Создаём папку для логов
 mkdir -p logs
