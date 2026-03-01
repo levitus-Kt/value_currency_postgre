@@ -30,15 +30,15 @@ class DatabaseManager:
         """Подключение к базе данных"""
         try:
             self.connection = psycopg2.connect(self.db_url)
-            logger.info("Успешное подключение к БД")
+            logger.info("Connection to database successful")
             return True
         
         except psycopg2.OperationalError as e:
-            logger.error(f"Ошибка подключения к БД: {e}")
+            logger.error(f"Database connection error: {e}")
             return False
         
         except Exception as e:
-            logger.error(f"Неожиданная ошибка при подключении: {e}")
+            logger.error(f"Unexpected error while connecting: {e}")
             return False
     
     def create_tables(self) -> bool:
@@ -70,11 +70,11 @@ class DatabaseManager:
                 ''')
                 
                 self.connection.commit()
-                logger.info("Таблицы успешно созданы")
+                logger.info("Tables successfully created")
                 return True
             
         except Exception as e:
-            logger.error(f"Ошибка при создании таблиц: {e}")
+            logger.error(f"Error creating tables: {e}")
             self.connection.rollback()
             return False
         
@@ -97,7 +97,7 @@ class DatabaseManager:
                 return request_id
             
         except Exception as e:
-            logger.error(f"Ошибка при вставке в requests: {e}")
+            logger.error(f"Error inserting into requests: {e}")
             self.connection.rollback()
             return None
 
@@ -122,10 +122,10 @@ class DatabaseManager:
                     ))
                 
                 self.connection.commit()
-                logger.info(f"Сохранено {len(currencies)} валют")
+                logger.info(f"Saved {len(currencies)} currencies for request_id {request_id}")
                 return True
         except Exception as e:
-            logger.error(f"Ошибка при вставке в responses: {e}")
+            logger.error(f"Error inserting into responses: {e}")
             self.connection.rollback()
             return False
         
@@ -150,11 +150,11 @@ class DatabaseManager:
                 return cursor.fetchall()
             
         except Exception as e:
-            logger.error(f"Ошибка при чтении из БД: {e}")
+            logger.error(f"Reading from database error: {e}")
             return []
     
     def close(self):
         """Закрытие соединения с БД"""
         if self.connection:
             self.connection.close()
-            logger.info("Соединение с БД закрыто")
+            logger.info("Connection to database closed")
