@@ -2,7 +2,6 @@
 Модуль для работы с базой данных PostgreSQL.
 """
 import psycopg2
-from psycopg2.extras import RealDictCursor
 from datetime import datetime
 import logging
 from config import DATABASE_URL, LOG_FILE
@@ -128,30 +127,7 @@ class DatabaseManager:
             logger.error(f"Error inserting into responses: {e}")
             self.connection.rollback()
             return False
-        
 
-    def get_latest_rates(self, limit: int = 10):
-        """Получение последних курсов валют"""
-        try:
-            with self.connection.cursor(cursor_factory=RealDictCursor) as cursor:
-                cursor.execute('''
-                    SELECT 
-                        r.id, 
-                        r.request_time, 
-                        resp.currency_code, 
-                        resp.currency_name, 
-                        resp.rate
-                    FROM responses resp
-                    JOIN requests r ON resp.request_id = r.id
-                    ORDER BY r.request_time DESC, resp.id DESC
-                    LIMIT %s
-                ''', (limit))
-                
-                return cursor.fetchall()
-            
-        except Exception as e:
-            logger.error(f"Reading from database error: {e}")
-            return []
     
     def close(self):
         """Закрытие соединения с БД"""
