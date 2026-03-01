@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 class DatabaseManager:
     """Менеджер для работы с базой данных"""
     
-    def __init__(self, db_url):
+    def __init__(self, db_url) -> None:
         self.db_url = db_url
         self.connection = None
     
@@ -129,7 +129,7 @@ class DatabaseManager:
             return False
 
     
-    def close(self):
+    def close(self) -> None:
         """Закрытие соединения с БД"""
         if self.connection:
             self.connection.close()

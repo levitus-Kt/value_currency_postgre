@@ -144,7 +144,7 @@ class ExchangeRatesService:
             time.sleep(self.fetch_interval)
 
     
-def main():
+def main() -> None:
     """Точка входа приложения"""
     # Инициализация менеджера БД
     db_manager = DatabaseManager(DATABASE_URL)
